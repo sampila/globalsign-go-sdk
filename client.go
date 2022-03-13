@@ -68,10 +68,13 @@ func NewClientWithOpts(opts *ClientOptions) (*Client, error) {
 		return nil, err
 	}
 
-	return &Client{
+	c := &Client{
 		BaseURL:    opts.BaseURL,
 		httpClient: httpClient,
-	}, nil
+	}
+	c.DSSService = &globalSignDSSService{client: c}
+
+	return c, nil
 }
 
 // newHTTPClientWithCertificate initiate HTTP client with tls.
@@ -123,14 +126,12 @@ func (c *Client) NewRequest(method string, path string, params interface{}) (*ht
 	// Add necessary address parts into the base url.
 	reqURL := fmt.Sprintf("%s%s", baseURL.String(), path)
 
-	// Prepare request depending on it's type.
 	var (
 		req *http.Request
 		err error
 	)
 
-	req.Header.Add("Content-Type", contentType)
-
+	// Prepare request depending on it's type.
 	if method == http.MethodGet {
 		req, err = http.NewRequest(method, reqURL, nil)
 		if err != nil {
@@ -160,6 +161,7 @@ func (c *Client) NewRequest(method string, path string, params interface{}) (*ht
 			return nil, err
 		}
 	}
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }

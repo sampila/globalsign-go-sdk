@@ -8,7 +8,7 @@ Client SDK for GlobalSign Digital Signing Service API.
 
 # Usage
 Example usage:
-- for [unidoc](https://unidoc.io "Unidoc website") integration see **integration** package
+- For [unidoc](https://unidoc.io "Unidoc website") integration see **_examples/main.go**.
 ```go
 ...
 
@@ -26,7 +26,7 @@ if err != nil {
 
 // Create signature handler.
 handler, err := integration.NewGlobalSignDSS(context.Background(), manager, option.SignedBy, map[string]interface{}{
-	"common_name": "Galih Rivanto"
+	"common_name": "UniDoc"
 })
 if err != nil {
 	return err
@@ -35,4 +35,5 @@ if err != nil {
 
 # Credits
 Thanks to [@wja-id](https://github.com/wja-id)
+
 This package is modified from [https://github.com/wja-id/globalsign-sdk](https://github.com/wja-id/globalsign-sdk)

@@ -8,7 +8,7 @@ import (
 	"encoding/pem"
 	"fmt"
 	"net/url"
-	//"os"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -18,11 +18,11 @@ import (
 )
 
 var (
-	apiKey     = "f28038fbad10c458"                         //os.Getenv("GLOBALSIGN_DSS_API_KEY")
-	apiSecret  = "90f2fd53bd03cdba64cf34c04349f03986cca032" //os.Getenv("GLOBALSIGN_DSS_API_SECRET")
+	apiKey     = os.Getenv("GLOBALSIGN_DSS_API_KEY")
+	apiSecret  = os.Getenv("GLOBALSIGN_DSS_API_SECRET")
 	apiBaseURL = "https://emea.api.dss.globalsign.com:8443"
-	certPath   = "/home/alip/Private/globalsign/mTLS-alip.crt"       //os.Getenv("GLOBALSIGN_DSS_CERT_PATH")
-	keyPath    = "/home/alip/Private/globalsign/privateKey-alip.key" //os.Getenv("GLOBALSIGN_DSS_KEY_PATH")
+	certPath   = os.Getenv("GLOBALSIGN_DSS_CERT_PATH")
+	keyPath    = os.Getenv("GLOBALSIGN_DSS_KEY_PATH")
 )
 
 func TestSign(t *testing.T) {

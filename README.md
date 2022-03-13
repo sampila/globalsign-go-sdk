@@ -25,7 +25,7 @@ if err != nil {
 }
 
 // Create signature handler.
-handler, err := integration.NewGlobalSignDSS(context.Background(), manager, option.SignedBy, map[string]interface{}{
+handler, err := sign_handler.NewGlobalSignDSS(context.Background(), manager, option.SignedBy, map[string]interface{}{
 	"common_name": "UniDoc"
 })
 if err != nil {
@@ -34,6 +34,6 @@ if err != nil {
 ```
 
 # Credits
-Thanks to [@wja-id](https://github.com/wja-id)
+Thanks to [@wja-id](https://github.com/wja-id)  
 
 This package is modified from [https://github.com/wja-id/globalsign-sdk](https://github.com/wja-id/globalsign-sdk)

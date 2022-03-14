@@ -12,14 +12,8 @@ Example usage:
 ```go
 ...
 
-// create globalsign manager.
-manager, err := globalsign.NewManager(&globalsign.ManagerOption{
-	APIKey:            "<API_KEY>",
-	APISecret:         "<API_SECRET>",
-	BaseURL:           "<API_URL>",
-	PrivateKeyPath:    "<KEY_PATH>",
-	CertificatePath:   "<CERT_PATH>",
-})
+// Create GlobalSign client.
+client, err := globalsign.NewClient("<API_KEY>", "<API_SECRET>", "<KEY_PATH>", "<CERT_PATH>")
 if err != nil {
 	return err
 }

@@ -60,17 +60,19 @@ type ClientOptions struct {
 	KeyFilePath string
 }
 
-// NewClient return globalsign sdk client.
-func NewClient(apiKey, apiSecret string) (*Client, error) {
+// NewClient initiate client with `API Key`, `API Secret`, `Certificate file path`, `Private Key file path` and return globalsign sdk client.
+func NewClient(apiKey, apiSecret, certPath, keyPath string) (*Client, error) {
 	baseURL, err := url.Parse(defaultBaseURL)
 	if err != nil {
 		return nil, err
 	}
 
 	opts := &ClientOptions{
-		BaseURL:   baseURL,
-		ApiKey:    apiKey,
-		ApiSecret: apiSecret,
+		BaseURL:      baseURL,
+		ApiKey:       apiKey,
+		ApiSecret:    apiSecret,
+		CertFilePath: certPath,
+		KeyFilePath:  keyPath,
 	}
 	return NewClientWithOpts(opts)
 }

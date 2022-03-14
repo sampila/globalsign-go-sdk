@@ -2,6 +2,7 @@ package globalsign
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -9,9 +10,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sync"
+	"time"
 )
 
+// Client GlobalSign sdk client.
 type Client struct {
+	sync.RWMutex
 	// httpClient used to communicate with the API.
 	httpClient *http.Client
 
@@ -24,8 +29,17 @@ type Client struct {
 	// authToken token for authorization.
 	authToken *string
 
-	// digital signing service (dss)
+	// authTokenTs authentication token timestamp.
+	authTokenTs time.Time
+
+	// DSSService Digital Signing Service (DSS).
 	DSSService DSSService
+
+	// vault store identity information.
+	vault *IdentityVault
+
+	// Options.
+	options *ClientOptions
 }
 
 // ClientOptions options for client.
@@ -61,6 +75,7 @@ func NewClient(apiKey, apiSecret string) (*Client, error) {
 	return NewClientWithOpts(opts)
 }
 
+// NewClientWithOpts return GlobalSign sdk client and apply options.
 func NewClientWithOpts(opts *ClientOptions) (*Client, error) {
 	// create a client
 	httpClient, err := newHTTPClientWithCertificate(opts.CertFilePath, opts.KeyFilePath)
@@ -71,6 +86,8 @@ func NewClientWithOpts(opts *ClientOptions) (*Client, error) {
 	c := &Client{
 		BaseURL:    opts.BaseURL,
 		httpClient: httpClient,
+		vault:      NewIdentityVault(identityTTL),
+		options:    opts,
 	}
 	c.DSSService = &globalSignDSSService{client: c}
 
@@ -199,10 +216,12 @@ func (c *Client) Do(req *http.Request, result interface{}) error {
 	return err
 }
 
+// SetAuthToken set authentication token to client.
 func (c *Client) SetAuthToken(at string) {
 	c.authToken = &at
 }
 
+// SetUserAgent set user agent to client.
 func (c *Client) SetUserAgent(ua string) {
 	c.userAgent = ua
 }
@@ -223,4 +242,34 @@ func checkResponse(r *http.Response) error {
 // which returned from api.
 type Response struct {
 	*http.Response
+}
+
+// ensureToken automatically request new token if token expired.
+func (c *Client) ensureToken(ctx context.Context) error {
+	c.RLock()
+	token := ""
+	if c.authToken != nil {
+		token = *c.authToken
+	}
+
+	tokenTs := c.authTokenTs
+	c.RUnlock()
+
+	// If token not yet acquired or expired.
+	if token == "" || time.Since(tokenTs) > authTokenTTL {
+		resp, err := c.DSSService.Login(&LoginRequest{
+			APIKey:    c.options.ApiKey,
+			APISecret: c.options.ApiSecret,
+		})
+		if err != nil {
+			return err
+		}
+
+		c.Lock()
+		c.authToken = &resp.AccessToken
+		c.authTokenTs = time.Now()
+		c.Unlock()
+	}
+
+	return nil
 }
